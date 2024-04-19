@@ -1,6 +1,7 @@
 package com.gensokyo.nucleardelight.world.food;
 
 import com.gensokyo.nucleardelight.NuclearDelight;
+import com.gensokyo.nucleardelight.Utils;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -11,7 +12,6 @@ import org.slf4j.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -31,34 +31,11 @@ public class Foods {
 
     public static void Initializing() {
         LOGGER.debug("Initializing Foods");
-        try {
-            Class<?> clazz = Foods.class;
-            Field[] fields = clazz.getDeclaredFields();
-
-            Map<String, FoodProperties> staticFinalFoodProperties = new HashMap<>();
-
-            for (Field field : fields) {
-                int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && field.getType() == FoodProperties.class) {
-                    boolean accessible = field.canAccess(null);
-                    field.setAccessible(true);
-                    FoodProperties value = (FoodProperties) field.get(null);
-                    field.setAccessible(accessible);
-
-                    staticFinalFoodProperties.put(field.getName(), value);
-                }
-            }
-
-            // Print the names and values of the static final FoodProperties fields
-            for (Map.Entry<String, FoodProperties> entry : staticFinalFoodProperties.entrySet()) {
-                LOGGER.debug("Name: {}, Value: {}", entry.getKey(), entry.getValue());
-                String id = entry.getKey().toLowerCase();
-                Supplier<Item> getFoodItem = (()-> new Item((new Item.Properties()).food(entry.getValue())));
-
-                NuclearDelight.ITEMS.register(id, getFoodItem);
-            }
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Failed to access field", e);
-        }
+        Map<String, FoodProperties> staticFinalFieldsNameAndValue = Utils.getStaticFinalFieldsNameAndValue(Foods.class, FoodProperties.class);
+        staticFinalFieldsNameAndValue.forEach((name, value) -> {
+            String id = name.toLowerCase();
+            Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().food(value));
+            NuclearDelight.ITEMS.register(id, itemSupplier);
+        });
     }
 }

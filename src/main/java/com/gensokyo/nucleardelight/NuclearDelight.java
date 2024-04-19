@@ -30,6 +30,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(NuclearDelight.MODID)
 public class NuclearDelight {
@@ -59,7 +62,7 @@ public class NuclearDelight {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-            output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
     public NuclearDelight() {
@@ -68,7 +71,12 @@ public class NuclearDelight {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
-        Foods.Initializing();
+        Utils.registryObjects(ITEMS,
+                Utils.getStaticFinalFieldsNameAndValue(Foods.class, FoodProperties.class).entrySet().stream()
+                        .collect(Collectors.toMap(
+                                entry -> entry.getKey().toLowerCase(),
+                                entry -> () -> new Item(new Item.Properties().food(entry.getValue()))
+                        )));
 
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
@@ -101,11 +109,11 @@ public class NuclearDelight {
     }
 
     // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
             event.accept(EXAMPLE_BLOCK_ITEM);
     }
+
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
@@ -118,8 +126,7 @@ public class NuclearDelight {
     public static class ClientModEvents {
 
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
+        public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());

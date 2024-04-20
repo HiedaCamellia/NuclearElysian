@@ -1,9 +1,12 @@
 package com.gensokyo.nucleardelight;
 
+import com.gensokyo.nucleardelight.register.AutoRegistryObject;
+import com.gensokyo.nucleardelight.world.effect.MobEffects;
 import com.gensokyo.nucleardelight.world.food.Foods;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -30,6 +33,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(NuclearDelight.MODID)
 public class NuclearDelight {
@@ -42,6 +49,7 @@ public class NuclearDelight {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "nucleardelight" namespace
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MODID);
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "examplemod" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -59,8 +67,10 @@ public class NuclearDelight {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-            output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
+
+    public static List<RegistryObject<Item>> RegisteredItems = new ArrayList<>();
 
     public NuclearDelight() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -68,12 +78,23 @@ public class NuclearDelight {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
-        Foods.Initializing();
+        List<RegistryObject<Item>> registeredFoods = Utils.registryObjects(ITEMS,
+                Utils.getStaticFinalFieldsNameAndValue(Foods.class, FoodProperties.class).entrySet().stream()
+                        .collect(Collectors.toMap(
+                                entry -> entry.getKey().toLowerCase(),
+                                entry -> () -> new Item(new Item.Properties().food(entry.getValue()))
+                        )));
+
+        Utils.getStaticFinalFieldsNameAndValue(MobEffects.class, AutoRegistryObject.class)
+                .forEach((key, value) -> value.register(MOB_EFFECTS, key.toLowerCase()));
+
+        RegisteredItems.addAll(registeredFoods);
 
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so items get registered
         ITEMS.register(modEventBus);
+        MOB_EFFECTS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -101,11 +122,11 @@ public class NuclearDelight {
     }
 
     // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
             event.accept(EXAMPLE_BLOCK_ITEM);
     }
+
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
@@ -118,8 +139,7 @@ public class NuclearDelight {
     public static class ClientModEvents {
 
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
+        public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());

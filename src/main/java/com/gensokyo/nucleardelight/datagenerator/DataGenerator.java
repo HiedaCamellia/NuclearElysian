@@ -20,5 +20,7 @@ public class DataGenerator {
 
         List<Item> items = NuclearDelight.RegisteredItems.stream().map(RegistryObject::get).toList();
         event.getGenerator().addProvider(true, new SingleTextureItemModelGenerator(items, packOutput, existingFileHelper));
+
+        NuclearDelight.LangKeyValuePairs.forEach((lang, name) -> event.getGenerator().addProvider(true, new LangGenerator(packOutput, lang)));
     }
 }

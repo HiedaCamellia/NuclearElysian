@@ -1,5 +1,7 @@
 package com.gensokyo.nucleardelight;
 
+import com.gensokyo.nucleardelight.datagenerator.LangName;
+import com.gensokyo.nucleardelight.datagenerator.Langs;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -11,29 +13,57 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class Utils {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static <T> Map<String, T> getStaticFinalFieldsNameAndValue(Class<?> clazz, Class<T> valueType) {
+    public static Field[] getStaticFinalFields(Class<?> clazz, Class<?> valueType) {
+        Field[] fields = clazz.getDeclaredFields();
+        return Stream.of(fields).filter(field -> {
+            int modifiers = field.getModifiers();
+            return Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && field.getType() == valueType;
+        }).toList().toArray(new Field[0]);
+    }
+
+    public static <T> Map<String, T> getStaticFinalFieldsNameAndValueFrom(Class<?> clazz, Class<T> valueType) {
         Map<String, T> staticFinalFieldsNameAndValue = new HashMap<>();
         try {
-            Field[] fields = clazz.getDeclaredFields();
+            Field[] fields = getStaticFinalFields(clazz, valueType);
             for (Field field : fields) {
-                int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && field.getType() == valueType) {
-                    boolean accessible = field.canAccess(null);
-                    field.setAccessible(true);
-                    T value = (T) field.get(null);
-                    field.setAccessible(accessible);
-
-                    staticFinalFieldsNameAndValue.put(field.getName(), value);
-                }
+                field.setAccessible(true);
+                staticFinalFieldsNameAndValue.put(field.getName(), (T) field.get(null));
             }
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Failed to access field", e);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            LOGGER.error("Failed to get field", e);
         }
         return staticFinalFieldsNameAndValue;
+    }
+
+    public static <T> Map.Entry<String, T> getNameAndValueFromField(Field field) {
+        try {
+            field.setAccessible(true);
+            return Map.entry(field.getName(), (T) field.get(null));
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            LOGGER.error("Failed to get field", e);
+            return null;
+        }
+    }
+
+    public static <T> List<Map.Entry<String, T>> getNameAndValueFromFields(Field[] fields) {
+        return Stream.of(fields).map(Utils::getNameAndValueFromField).map(entry -> (Map.Entry<String, T>) entry).toList();
+    }
+
+    public static Map<LangName, String> getLangFromField(Field field) {
+        Langs langs = field.getAnnotation(Langs.class);
+        if (langs == null) {
+            return Map.of();
+        }
+        Map<LangName, String> langNameAndName = new HashMap<>();
+        for (int i = 0; i < langs.value().length; i++) {
+            langNameAndName.put(langs.value()[i].lang(), langs.value()[i].name());
+        }
+        return langNameAndName;
     }
 
     public static <T> List<RegistryObject<T>> registryObjects(DeferredRegister<T> register, Map<String, Supplier<T>> idAndObjectPairs) {

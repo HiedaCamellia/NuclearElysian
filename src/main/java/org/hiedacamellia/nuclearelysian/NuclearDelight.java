@@ -1,9 +1,9 @@
-package com.gensokyo.nucleardelight;
+package org.hiedacamellia.nuclearelysian;
 
-import com.gensokyo.nucleardelight.datagenerator.LangName;
-import com.gensokyo.nucleardelight.register.AutoRegistryObject;
-import com.gensokyo.nucleardelight.world.effect.MobEffects;
-import com.gensokyo.nucleardelight.world.food.Foods;
+import org.hiedacamellia.nuclearelysian.datagenerator.LangName;
+import org.hiedacamellia.nuclearelysian.register.AutoRegistryObject;
+import org.hiedacamellia.nuclearelysian.world.effect.MobEffects;
+import org.hiedacamellia.nuclearelysian.world.food.Foods;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;

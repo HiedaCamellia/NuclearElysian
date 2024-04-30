@@ -1,4 +1,4 @@
-package com.gensokyo.nucleardelight.datagenerator;
+package org.hiedacamellia.nuclearelysian.datagenerator;
 
 public enum LangName {
     EN_US("en_us"),

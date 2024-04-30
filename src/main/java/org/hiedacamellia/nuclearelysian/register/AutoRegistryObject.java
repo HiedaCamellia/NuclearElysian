@@ -1,4 +1,4 @@
-package com.gensokyo.nucleardelight.register;
+package org.hiedacamellia.nuclearelysian.register;
 
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;

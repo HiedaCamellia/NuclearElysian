@@ -1,4 +1,4 @@
-package com.gensokyo.nucleardelight.datagenerator;
+package org.hiedacamellia.nuclearelysian.datagenerator;
 
 import java.lang.annotation.*;
 

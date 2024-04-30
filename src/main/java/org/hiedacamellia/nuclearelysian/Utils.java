@@ -1,7 +1,7 @@
-package com.gensokyo.nucleardelight;
+package org.hiedacamellia.nuclearelysian;
 
-import com.gensokyo.nucleardelight.datagenerator.LangName;
-import com.gensokyo.nucleardelight.datagenerator.Langs;
+import org.hiedacamellia.nuclearelysian.datagenerator.LangName;
+import org.hiedacamellia.nuclearelysian.datagenerator.Langs;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;

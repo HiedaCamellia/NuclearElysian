@@ -7,6 +7,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class VomitingMobEffect extends MobEffect {
 
     protected VomitingMobEffect() {
@@ -17,7 +19,7 @@ public class VomitingMobEffect extends MobEffect {
     public void applyEffectTick(@NotNull LivingEntity entity, int level) {
         if (!entity.hasEffect(MobEffects.CONFUSION)) {
             entity.addEffect(new MobEffectInstance(MobEffects.CONFUSION,
-                    entity.getEffect(com.gensokyo.nucleardelight.world.effect.MobEffects.VOMITING.get()).getDuration(), 1));
+                    Objects.requireNonNull(entity.getEffect(com.gensokyo.nucleardelight.world.effect.MobEffects.VOMITING.get())).getDuration(), 1));
         }
     }
 

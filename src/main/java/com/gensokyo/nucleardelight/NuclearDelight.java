@@ -1,5 +1,6 @@
 package com.gensokyo.nucleardelight;
 
+import com.gensokyo.nucleardelight.datagenerator.LangName;
 import com.gensokyo.nucleardelight.register.AutoRegistryObject;
 import com.gensokyo.nucleardelight.world.effect.MobEffects;
 import com.gensokyo.nucleardelight.world.food.Foods;
@@ -33,9 +34,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(NuclearDelight.MODID)
@@ -70,6 +71,8 @@ public class NuclearDelight {
                 output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
+    public static Map<String, Map<Supplier<String>, String>> LangKeyValuePairs = new HashMap<>();
+
     public static List<RegistryObject<Item>> RegisteredItems = new ArrayList<>();
 
     public NuclearDelight() {
@@ -78,14 +81,27 @@ public class NuclearDelight {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
-        List<RegistryObject<Item>> registeredFoods = Utils.registryObjects(ITEMS,
-                Utils.getStaticFinalFieldsNameAndValue(Foods.class, FoodProperties.class).entrySet().stream()
-                        .collect(Collectors.toMap(
-                                entry -> entry.getKey().toLowerCase(),
-                                entry -> () -> new Item(new Item.Properties().food(entry.getValue()))
-                        )));
+        Field[] foodFields = Utils.getStaticFinalFields(Foods.class, FoodProperties.class);
 
-        Utils.getStaticFinalFieldsNameAndValue(MobEffects.class, AutoRegistryObject.class)
+//        List<RegistryObject<Item>> registeredFoods = Utils.registryObjects(ITEMS,
+//                Utils.getStaticFinalFieldsNameAndValueFrom(Foods.class, FoodProperties.class).entrySet().stream()
+//                        .collect(Collectors.toMap(
+//                                entry -> entry.getKey().toLowerCase(),
+//                                entry -> () -> new Item(new Item.Properties().food(entry.getValue()))
+//                        )));
+
+        List<RegistryObject<Item>> registeredFoods = Arrays.stream(foodFields)
+                .map(field -> {
+                    Map.Entry<String, FoodProperties> entry = Utils.getNameAndValueFromField(field);
+                    return ITEMS.register(field.getName().toLowerCase(), () -> new Item(new Item.Properties().food(entry.getValue())));
+                })
+                .toList();
+
+        List<Map<LangName, String>> foodLangs = Arrays.stream(foodFields)
+                .map(Utils::getLangFromField)
+                .toList();
+
+        Utils.getStaticFinalFieldsNameAndValueFrom(MobEffects.class, AutoRegistryObject.class)
                 .forEach((key, value) -> value.register(MOB_EFFECTS, key.toLowerCase()));
 
         RegisteredItems.addAll(registeredFoods);
@@ -106,6 +122,16 @@ public class NuclearDelight {
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        foodLangs.stream().map(Map::entrySet).forEach(entries -> entries.stream().map(Map.Entry::getKey).forEach(langName -> {
+            if (!LangKeyValuePairs.containsKey(langName.getValue()))
+                LangKeyValuePairs.put(langName.getValue(), new HashMap<>());
+        }));
+
+        for (int i = 0; i < registeredFoods.size(); i++) {
+            int finalI = i;
+            foodLangs.get(i).forEach((key, value) -> LangKeyValuePairs.get(key.getValue()).put(() -> registeredFoods.get(finalI).get().getDescriptionId(), value));
+        }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

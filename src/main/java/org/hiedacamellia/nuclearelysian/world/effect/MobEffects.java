@@ -1,6 +1,6 @@
-package com.gensokyo.nucleardelight.world.effect;
+package org.hiedacamellia.nuclearelysian.world.effect;
 
-import com.gensokyo.nucleardelight.register.AutoRegistryObject;
+import org.hiedacamellia.nuclearelysian.register.AutoRegistryObject;
 import net.minecraft.world.effect.MobEffect;
 
 public class MobEffects {

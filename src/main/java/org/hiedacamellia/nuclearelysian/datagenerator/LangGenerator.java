@@ -1,6 +1,6 @@
-package com.gensokyo.nucleardelight.datagenerator;
+package org.hiedacamellia.nuclearelysian.datagenerator;
 
-import com.gensokyo.nucleardelight.NuclearDelight;
+import org.hiedacamellia.nuclearelysian.NuclearDelight;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
 

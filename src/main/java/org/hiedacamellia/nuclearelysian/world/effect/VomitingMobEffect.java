@@ -1,4 +1,4 @@
-package com.gensokyo.nucleardelight.world.effect;
+package org.hiedacamellia.nuclearelysian.world.effect;
 
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -19,7 +19,7 @@ public class VomitingMobEffect extends MobEffect {
     public void applyEffectTick(@NotNull LivingEntity entity, int level) {
         if (!entity.hasEffect(MobEffects.CONFUSION)) {
             entity.addEffect(new MobEffectInstance(MobEffects.CONFUSION,
-                    Objects.requireNonNull(entity.getEffect(com.gensokyo.nucleardelight.world.effect.MobEffects.VOMITING.get())).getDuration(), 1));
+                    Objects.requireNonNull(entity.getEffect(org.hiedacamellia.nuclearelysian.world.effect.MobEffects.VOMITING.get())).getDuration(), 1));
         }
     }
 

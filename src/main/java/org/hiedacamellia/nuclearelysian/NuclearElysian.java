@@ -39,8 +39,8 @@ import java.util.*;
 import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(NuclearDelight.MODID)
-public class NuclearDelight {
+@Mod(NuclearElysian.MODID)
+public class NuclearElysian {
 
     // Define mod id in a common place for everything to reference
     public static final String MODID = "nucleardelight";
@@ -75,7 +75,7 @@ public class NuclearDelight {
 
     public static List<RegistryObject<Item>> RegisteredItems = new ArrayList<>();
 
-    public NuclearDelight() {
+    public NuclearElysian() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         // Register the commonSetup method for modloading

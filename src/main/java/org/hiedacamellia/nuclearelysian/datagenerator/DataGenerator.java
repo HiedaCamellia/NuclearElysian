@@ -1,6 +1,6 @@
 package org.hiedacamellia.nuclearelysian.datagenerator;
 
-import org.hiedacamellia.nuclearelysian.NuclearDelight;
+import org.hiedacamellia.nuclearelysian.NuclearElysian;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -18,9 +18,9 @@ public class DataGenerator {
         PackOutput packOutput = event.getGenerator().getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
-        List<Item> items = NuclearDelight.RegisteredItems.stream().map(RegistryObject::get).toList();
+        List<Item> items = NuclearElysian.RegisteredItems.stream().map(RegistryObject::get).toList();
         event.getGenerator().addProvider(true, new SingleTextureItemModelGenerator(items, packOutput, existingFileHelper));
 
-        NuclearDelight.LangKeyValuePairs.forEach((lang, name) -> event.getGenerator().addProvider(true, new LangGenerator(packOutput, lang)));
+        NuclearElysian.LangKeyValuePairs.forEach((lang, name) -> event.getGenerator().addProvider(true, new LangGenerator(packOutput, lang)));
     }
 }

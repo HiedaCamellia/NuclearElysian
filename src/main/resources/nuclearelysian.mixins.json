@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.gensokyo.nucleardelight.mixin",
+  "package": "org.hiedacamellia.nuclearelysian.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "NuclearDelight.refmap.json",
+  "refmap": "NuclearElysian.refmap.json",
   "mixins": [
   ],
   "client": [

@@ -1,6 +1,6 @@
 package org.hiedacamellia.nuclearelysian.datagenerator;
 
-import org.hiedacamellia.nuclearelysian.NuclearDelight;
+import org.hiedacamellia.nuclearelysian.NuclearElysian;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -14,7 +14,7 @@ public class SingleTextureItemModelGenerator extends ItemModelProvider {
     private final Collection<Item> items;
 
     public SingleTextureItemModelGenerator(Collection<Item> items, PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, NuclearDelight.MODID, existingFileHelper);
+        super(output, NuclearElysian.MODID, existingFileHelper);
         this.items = items;
     }
 
